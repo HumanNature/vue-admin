@@ -74,6 +74,7 @@ export default {
       this.$refs[formName].validate((valid) => {
         if (valid) {
           alert("submit!");
+          console.log(1);
           this.$message.success("登陆成功");
           console.log(this.ruleForm);
         } else {
