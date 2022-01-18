@@ -13,6 +13,11 @@ import * as echarts from 'echarts' //这里的引用是适用于echarts5.0以上
 Vue.prototype.$echarts = echarts;
 import axios from 'axios';
 axios.defaults.baseURL = 'http://127.0.0.1:8888/api/private/v1/'
+axios.interceptors.request.use(config => {
+  //为请求头对象，添加Token验证的Authorization字段
+  config.headers.Authorization = window.sessionStorage.getItem('token')
+  return config
+})
 Vue.prototype.$http = axios
 Vue.config.productionTip = false
 

@@ -9,20 +9,20 @@ export function getRequest(config) {
 
     })
     return instance(config)
-
 }
-// 添加请求拦截器，在请求头中加token
+// 请求拦截
 axios.interceptors.request.use(
-    config => {
-        if (localStorage.getItem('Authorization')) {
-            config.headers.Authorization = localStorage.getItem('Authorization');
+    (confing) => {
+        //设置请求头
+        if (localStorage.eToken) {
+            confing.headers.Authorization = window.sessionStorage.getItem('token')
         }
-
-        return config;
+        return confing
     },
-    error => {
-        return Promise.reject(error);
-    });
+    (error) => {
+        return Promise.reject(error)
+    }
+)
 export function postRequest(config) {
     // 1.创建axios实例
     const instance = axios.create({
