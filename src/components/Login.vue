@@ -7,10 +7,11 @@
         </div>
       </div>
       <el-form :model="ruleForm" :rules="rules" ref="ruleForm" class="form">
-        <el-form-item prop="name">
+        <el-form-item prop="username">
           <el-input
             prefix-icon="iconfont el-icon-s-custom"
-            v-model="ruleForm.name"
+            v-model="ruleForm.username"
+            @keyup.enter.native="submitForm('ruleForm')"
           ></el-input>
         </el-form-item>
         <el-form-item prop="password">
@@ -18,6 +19,7 @@
             type="password"
             prefix-icon="iconfont el-icon-lock"
             v-model="ruleForm.password"
+            @keyup.enter.native="submitForm('ruleForm')"
           ></el-input>
         </el-form-item>
         <el-form-item class="btns">
@@ -32,16 +34,19 @@
 </template>
 
 <script>
+// import axios from "axios";
+// import { baseURL } from "../network/request";
+// import { postLogin } from "../network/login";
 export default {
   props: {},
   data() {
     return {
       ruleForm: {
-        name: "",
-        password: "",
+        username: "admin",
+        password: "123456",
       },
       rules: {
-        name: [
+        username: [
           { required: true, message: "请输入用户名", trigger: "blur" },
           { min: 3, max: 5, message: "长度在 3 到 5 个字符", trigger: "blur" },
         ],
@@ -71,14 +76,21 @@ export default {
   methods: {
     submitForm(formName) {
       //   console.log(this.ruleForm);
-      this.$refs[formName].validate((valid) => {
+      this.$refs[formName].validate(async (valid) => {
         if (valid) {
-          alert("submit!");
-          this.$message.success("登陆成功");
-          console.log(this.ruleForm);
+          console.log(valid);
+          const { data: res } = await this.$http.post("login", this.ruleForm);
+          console.log(res);
+          if (res.meta.status !== 200) {
+            this.$message.error("账号或密码输入错误，请重新输入 ");
+          } else {
+            this.$message.success("登陆成功");
+            // console.log(res.data.token);
+            window.sessionStorage.setItem('token',res.data.token)
+             this.$router.push("/home");
+          }
         } else {
           this.$message.error("登陆失败，请重新登录");
-          console.log(this.ruleForm);
           return false;
         }
       });
