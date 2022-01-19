@@ -15,13 +15,8 @@
     <!-- 主体区域 -->
     <el-container>
       <!-- 左部区域 -->
-      <el-aside width="200px">
-        <div
-          style="width=100%;height=20px;background-color: yellow;"
-          @click="isCollapse = !isCollapse"
-        >
-          a
-        </div>
+      <el-aside :width="isCollapse ? '64px' : '200px'">
+        <div class="toggle_button" @click="isCollapse = !isCollapse">|||</div>
         <el-menu
           :collapse="isCollapse"
           class="el-menu-vertical-demo"
@@ -29,6 +24,8 @@
           text-color="#E7F3FF"
           active-text-color="#E7F3FF"
           :unique-opened="true"
+          :collapse-transition="false"
+          router
         >
           <el-submenu
             :index="item.id + ' '"
@@ -42,7 +39,7 @@
               <span>{{ item.authName }}</span>
             </template>
             <el-menu-item
-              :index="subitem.id + ''"
+              :index="'/'+subitem.path"
               v-for="subitem in item.children"
               :key="subitem.id"
             >
@@ -53,7 +50,9 @@
         </el-menu>
       </el-aside>
       <!-- 右部区域 -->
-      <el-main> </el-main>
+      <el-main>
+        <router-view></router-view>
+      </el-main>
     </el-container>
   </el-container>
 </template>
@@ -115,10 +114,10 @@ export default {
 };
 </script>
 <style>
-.el-menu-vertical-demo:not(.el-menu--collapse) {
+/* .el-menu-vertical-demo:not(.el-menu--collapse) {
   width: 200px;
   min-height: 400px;
-}
+} */
 </style>
 <style lang="less" scoped>
 .el-header {
@@ -133,6 +132,7 @@ export default {
 .el-main {
   background-color: #e9edf0;
   color: #333;
+  padding: 0;
 }
 .el-icon {
   margin-right: 10px;
@@ -165,5 +165,15 @@ export default {
       }
     }
   }
+}
+.toggle_button {
+  background-color: rgb(65, 65, 65);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-bottom: 2px;
+  letter-spacing: 5px;
+  color: #fff;
+  cursor: pointer;
 }
 </style>
