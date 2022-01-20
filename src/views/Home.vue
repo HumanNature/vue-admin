@@ -20,6 +20,7 @@
         <el-menu
           :collapse="isCollapse"
           class="el-menu-vertical-demo"
+          :default-active="activePath"
           background-color="#323743"
           text-color="#E7F3FF"
           active-text-color="#E7F3FF"
@@ -39,9 +40,10 @@
               <span>{{ item.authName }}</span>
             </template>
             <el-menu-item
-              :index="'/'+subitem.path"
+              :index="'/' + subitem.path"
               v-for="subitem in item.children"
               :key="subitem.id"
+              @click="saveNavState('/' + subitem.path)"
             >
               <i :class="iconsObj[subitem.id]"></i>
               <span slot="title">{{ subitem.authName }}</span>
@@ -58,6 +60,7 @@
 </template>
 
 <script>
+import {getMenus} from '../network/home';
 export default {
   props: {},
   data() {
@@ -80,6 +83,7 @@ export default {
         107: "el-icon-menu",
         146: "el-icon-menu",
       },
+      activePath:''
     };
   },
 
@@ -94,18 +98,23 @@ export default {
   },
   created() {
     this.getMenu();
+    this.activePath = window.localStorage.getItem('activePath')
   },
   methods: {
     quit() {
-      window.sessionStorage.clear();
+      window.localStorage.clear();
       this.$router.push("/login");
     },
     async getMenu() {
-      const { data: res } = await this.$http.get("menus");
-      if (res.meta.status !== 200) return this.$message.error(res.meta.msg);
-      console.log(res);
-      this.menuList = res.data;
-      console.log(res);
+      getMenus(this.menus).then(res=>{
+        // console.log(res);
+        this.menuList = res.data.data;
+      })
+    },
+    saveNavState(activePath){
+      // 将激活的路由绑定到浏览器上
+      window.localStorage.setItem('activePath',activePath);
+      this,activePath.activePath
     },
     init() {},
   },
@@ -132,7 +141,7 @@ export default {
 .el-main {
   background-color: #e9edf0;
   color: #333;
-  padding: 0;
+  // padding: 0;
 }
 .el-icon {
   margin-right: 10px;
