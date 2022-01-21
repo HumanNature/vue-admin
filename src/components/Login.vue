@@ -81,17 +81,23 @@ export default {
           console.log(valid);
           // const { data: res } = await this.$http.post("login", this.ruleForm);
           // console.log(res);
-          postLogin(this.ruleForm).then((res) => {
-            console.log(res);
-            if (res.data.meta.status !== 200) {
-              this.$message.error("账号或密码输入错误，请重新输入 ");
-            } else {
-              this.$message.success("登陆成功");
-              // console.log(res.data.token);
-              window.localStorage.setItem("token", res.data.data.token);
-              this.$router.push("/home");
-            }
-          });
+          postLogin(this.ruleForm)
+            .then((res) => {
+              console.log(res);
+              if (res.meta.status !== 200) {
+                this.$message.error("账号或密码输入错误，请重新输入 ");
+              } else {
+                this.$message.success("登陆成功");
+                console.log(res);
+                // console.log(res.data.token);
+                //把token放在浏览器上
+                window.localStorage.setItem("token", res.data.token);
+                this.$router.push("/home");
+              }
+            })
+            .catch(() => {
+              this.$message.error("服务器关闭");
+            });
         } else {
           this.$message.error("登陆失败，请重新登录");
           return false;

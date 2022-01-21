@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <button id="btm">sb植物</button>
+    <script src='https://res.wx.qq.com/open/js/jweixin-1.3.0.js'></script>
+    <script>
+        // 点击立即体验跳转到小程序（如果要跳转的小程序路径是tab页就用wx.miniProgram.switchTab，否则无效）
+        var btn = document.getElementById('btm');
+        btn.addEventListener('click', function () {
+            console.log(1);
+            wx.miniProgram.navigateTo({
+                url: '小程序://植物托儿所/首页/METVfc9DSMoYh2E',
+            });
+        })
+    </script>
+</body>
+
+</html>

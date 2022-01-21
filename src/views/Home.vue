@@ -107,8 +107,8 @@ export default {
     },
     async getMenu() {
       getMenus(this.menus).then(res=>{
-        // console.log(res);
-        this.menuList = res.data.data;
+        console.log(res);
+        this.menuList = res.data;
       })
     },
     saveNavState(activePath){
