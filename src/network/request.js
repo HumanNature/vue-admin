@@ -17,6 +17,10 @@ instance.interceptors.request.use(config => {
     config.headers.Authorization = window.localStorage.getItem('token')
     return config
 })
+//再次拦截，为了获取数据中data中的data，拦截第一次data
+instance.interceptors.response.use(res => {
+    return res.data;
+  })
 export function postRequest(config) {
     // 1.创建axios实例
     const instance = axios.create({
