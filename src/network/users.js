@@ -9,12 +9,11 @@ export function getUsers(data) {
 
     })
 }
-export function postUsers(data) {
+export function postUsers(use) {
     return Request({
         method: 'post',
         url: 'api/private/v1/users/',
-        params: data
-
+        data: use
     })
 }
 export function putSwitch(uid, type) {

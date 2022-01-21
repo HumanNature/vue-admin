@@ -8,12 +8,13 @@
     </el-breadcrumb>
     <el-card class="box-card">
       <el-row :getter="20">
+        <!-- 搜索功能 -->
         <el-col :span="6"
           ><el-input
             placeholder="请输入内容"
             v-model="queryInfo.query"
             clearable
-            @clear='init'
+            @clear="init"
           >
             <el-button
               @click="init"
@@ -21,8 +22,59 @@
               icon="el-icon-search"
             ></el-button> </el-input
         ></el-col>
+        <!-- 添加用户 -->
         <el-col :span="4">
-          <el-button class="add_user" type="primary">添加用户</el-button>
+          <el-button
+            class="add_user"
+            type="primary"
+            @click="dialogVisible = true"
+            >添加用户</el-button
+          >
+          <el-dialog
+            title="添加用户"
+            :visible.sync="dialogVisible"
+            width="50%"
+            :before-close="handleClose"
+            :close-on-click-modal="false"
+            @close="resetForm"
+          >
+            <span>这是一段信息</span>
+            <el-form
+              :model="ruleForm"
+              :rules="rules"
+              ref="ruleForm"
+              label-width="100px"
+              class="demo-ruleForm"
+            >
+              <el-form-item label="用户名" prop="username">
+                <el-input v-model.trim="ruleForm.username"></el-input>
+              </el-form-item>
+              <el-form-item label="密码" prop="password">
+                <el-input
+                  type="password"
+                  v-model.trim="ruleForm.password"
+                ></el-input>
+              </el-form-item>
+              <el-form-item label="邮箱" prop="email">
+                <el-input v-model.trim="ruleForm.email"></el-input>
+              </el-form-item>
+              <el-form-item label="电话" prop="mobile">
+                <el-input v-model.trim="ruleForm.mobile"></el-input>
+              </el-form-item>
+              <el-form-item>
+                <el-button type="primary" @click="submitForm('ruleForm')"
+                  >立即创建</el-button
+                >
+                <el-button @click="resetForm()">重置</el-button>
+              </el-form-item>
+            </el-form>
+            <span slot="footer" class="dialog-footer">
+              <el-button @click="dialogVisible = false">取 消</el-button>
+              <el-button type="primary" @click="dialogVisible = false"
+                >确 定</el-button
+              >
+            </span>
+          </el-dialog>
         </el-col>
       </el-row>
       <!-- 用户列表 -->
@@ -87,6 +139,7 @@
           </template>
         </el-table-column>
       </el-table>
+      <!-- 分页功能 -->
       <el-pagination
         @size-change="handleSizeChange"
         @current-change="handleCurrentChange"
@@ -102,19 +155,72 @@
 </template>
 
 <script>
-import { getUsers, putSwitch } from "../../network/users";
+import { getUsers, putSwitch, postUsers } from "../../network/users";
 export default {
   props: {},
   data() {
+    var checkEmail = (rule, value, callback) => {
+      const regEmail = /^([a-zA-Z0-9_-])+@([a-zA-Z0-9_-])+(\.[a-zA-Z0-9_-])+/;
+      // const regEmail =
+      //   /^[a-z0-9A-Z]+[- | a-z0-9A-Z . _]+@([a-z0-9A-Z]+(-[a-z0-9A-Z]+)?\\.)+[a-z]{2,}$/;
+      if (regEmail.test(value)) {
+        return callback();
+      }
+      callback(new Error("请输入正确格式的邮箱"));
+    };
+    var checkTel = (rule, value, callback) => {
+      const regTel =
+        /^(0|86|17951)?(13[0-9]|15[0123456789]|17[678]|18[0-9]|14[57])[0-9]{8}$/;
+      if (regTel.test(value)) {
+        callback();
+      }
+      callback(new Error("请输入正确格式的手机号"));
+    };
     return {
       queryInfo: {
+        //列表
         query: null,
         pagenum: 1,
         pagesize: 4,
       },
-      userList: [],
-      mg_state: null,
+      userList: [], //用户列表
+      mg_state: null, //switch
       total: 0,
+      dialogVisible: false, //添加用户对话框开关
+      ruleForm: {
+        username: "qweqwe",
+        password: "qwewqwq",
+        email: "qweqwe@qe.qe",
+        mobile: "18888888888",
+      },
+      rules: {
+        username: [
+          { required: true, message: "请输入用户名", trigger: "blur" },
+          {
+            min: 2,
+            max: 10,
+            message: "长度在 2 到 10 个字符",
+            trigger: "blur",
+          },
+        ],
+        password: [
+          { required: true, message: "请输入密码", trigger: "blur" },
+          {
+            min: 5,
+            max: 18,
+            message: "长度在 5 到 18 个字符",
+            trigger: "blur",
+          },
+        ],
+        email: [
+          { validator: checkEmail, trigger: "blur" },
+          { required: true, message: "请输入邮箱", trigger: "blur" },
+        ],
+        mobile: [
+          { validator: checkTel, trigger: "blur" },
+          { required: true, message: "请输入电话", trigger: "blur" },
+        ],
+      },
     };
   },
 
@@ -166,6 +272,37 @@ export default {
         this.$message.success("更新用户状态成功");
         console.log(res);
       });
+    },
+    //添加用户
+    handleClose(done) {
+      this.$confirm("确认关闭？")
+        .then(() => {
+          done();
+        })
+        .catch(() => {});
+    },
+    submitForm(formName) {
+      this.$refs[formName].validate(async (valid) => {
+        if (valid) {
+          // alert("submit!");
+          console.log(formName);
+          console.log(this.ruleForm);
+          postUsers(this.ruleForm).then((res) => {
+            console.log(res);
+            if (res.meta.status !== 201) {
+              this.$message.error(res.meta.msg);
+            } else {
+              this.$message.success(res.meta.msg);
+            }
+          });
+        } else {
+          console.log("error submit!!");
+          return false;
+        }
+      });
+    },
+    resetForm() {
+      this.$refs.ruleForm.resetFields();
     },
   },
 
