@@ -27,18 +27,17 @@
           <el-button
             class="add_user"
             type="primary"
-            @click="dialogVisible = true"
+            @click="addUserdialog = true"
             >添加用户</el-button
           >
           <el-dialog
             title="添加用户"
-            :visible.sync="dialogVisible"
-            width="50%"
-            :before-close="handleClose"
+            :visible.sync="addUserdialog"
+            width="40%"
+            @click="addUserdialog = false"
             :close-on-click-modal="false"
             @close="resetForm"
           >
-            <span>这是一段信息</span>
             <el-form
               :model="ruleForm"
               :rules="rules"
@@ -68,12 +67,6 @@
                 <el-button @click="resetForm()">重置</el-button>
               </el-form-item>
             </el-form>
-            <span slot="footer" class="dialog-footer">
-              <el-button @click="dialogVisible = false">取 消</el-button>
-              <el-button type="primary" @click="dialogVisible = false"
-                >确 定</el-button
-              >
-            </span>
           </el-dialog>
         </el-col>
       </el-row>
@@ -94,12 +87,12 @@
         </el-table-column>
         <el-table-column prop="role_name" label="权限"> </el-table-column>
         <el-table-column label="操作">
-          <template>
+          <template v-slot="scope">
             <!-- <el-switch v-model="scope.row.mg_state"></el-switch> -->
             <el-tooltip
               class="item"
               effect="dark"
-              content="增加"
+              content="修改"
               placement="top"
               :enterable="false"
             >
@@ -107,6 +100,7 @@
                 size="mini"
                 icon="el-icon-edit"
                 type="primary"
+                @click="showModifyDialog(scope.row.id)"
               ></el-button>
             </el-tooltip>
 
@@ -121,6 +115,7 @@
                 size="mini"
                 icon="el-icon-delete"
                 type="danger"
+                @click="deleteUser(scope.row.id)"
               ></el-button>
             </el-tooltip>
             <el-tooltip
@@ -136,6 +131,41 @@
                 type="warning"
               ></el-button>
             </el-tooltip>
+            <!-- 修改用户的对话框 -->
+            <el-dialog
+              title="修改用户"
+              :visible.sync="alterUserdialog"
+              width="50%"
+              @close="alterUserdialogClose"
+            >
+              <el-form
+                :model="alterForm"
+                :rules="alterFormRules"
+                ref="alterForm"
+                label-width="100px"
+                class="demo-alterForm"
+              >
+                <el-form-item label="用户名" prop="username">
+                  <el-input
+                    disabled
+                    v-model.trim="alterForm.username"
+                  ></el-input>
+                </el-form-item>
+                <el-form-item label="邮箱" prop="email">
+                  <el-input v-model.trim="alterForm.email"></el-input>
+                </el-form-item>
+                <el-form-item label="电话" prop="mobile">
+                  <el-input v-model.trim="alterForm.mobile"></el-input>
+                </el-form-item>
+              </el-form>
+
+              <span slot="footer" class="dialog-footer">
+                <el-button @click="alterUserdialog = false">取 消</el-button>
+                <el-button type="primary" @click="alterUserForm()"
+                  >确 定</el-button
+                >
+              </span>
+            </el-dialog>
           </template>
         </el-table-column>
       </el-table>
@@ -155,7 +185,14 @@
 </template>
 
 <script>
-import { getUsers, putSwitch, postUsers } from "../../network/users";
+import {
+  getUsers,
+  putSwitch,
+  postUsers,
+  getIDUsers,
+  putIDUsers,
+  deleteIDUsers,
+} from "../../network/users";
 export default {
   props: {},
   data() {
@@ -186,7 +223,7 @@ export default {
       userList: [], //用户列表
       mg_state: null, //switch
       total: 0,
-      dialogVisible: false, //添加用户对话框开关
+      addUserdialog: false, //添加用户对话框开关
       ruleForm: {
         username: "qweqwe",
         password: "qwewqwq",
@@ -212,6 +249,18 @@ export default {
             trigger: "blur",
           },
         ],
+        email: [
+          { validator: checkEmail, trigger: "blur" },
+          { required: true, message: "请输入邮箱", trigger: "blur" },
+        ],
+        mobile: [
+          { validator: checkTel, trigger: "blur" },
+          { required: true, message: "请输入电话", trigger: "blur" },
+        ],
+      },
+      alterUserdialog: false,
+      alterForm: {},
+      alterFormRules: {
         email: [
           { validator: checkEmail, trigger: "blur" },
           { required: true, message: "请输入邮箱", trigger: "blur" },
@@ -274,13 +323,6 @@ export default {
       });
     },
     //添加用户
-    handleClose(done) {
-      this.$confirm("确认关闭？")
-        .then(() => {
-          done();
-        })
-        .catch(() => {});
-    },
     submitForm(formName) {
       this.$refs[formName].validate(async (valid) => {
         if (valid) {
@@ -293,6 +335,8 @@ export default {
               this.$message.error(res.meta.msg);
             } else {
               this.$message.success(res.meta.msg);
+              this.addUserdialog = false;
+              this.init();
             }
           });
         } else {
@@ -303,6 +347,68 @@ export default {
     },
     resetForm() {
       this.$refs.ruleForm.resetFields();
+    },
+    //修改用户
+    showModifyDialog(e) {
+      console.log(e);
+      this.alterUserdialog = true;
+      getIDUsers(e).then((res) => {
+        console.log(res);
+        if (res.meta.status !== 200) {
+          this.$message.error(res.meta.msg);
+        }
+        this.alterForm = res.data;
+      });
+    },
+    alterUserdialogClose() {
+      this.$refs.alterForm.resetFields();
+    },
+    alterUserForm() {
+      this.$refs.alterForm.validate(async (valid) => {
+        if (valid) {
+          let data = {
+            email: this.alterForm.email,
+            mobile: this.alterForm.mobile,
+          };
+          putIDUsers(this.alterForm.id, data).then((res) => {
+            if (res.meta.status !== 200) {
+              this.$message.error(res.meta.msg);
+            }
+            this.alterUserdialog = false;
+            this.init();
+            this.$message.success(res.meta.msg);
+          });
+        } else {
+          console.log("error submit!!");
+          return false;
+        }
+      });
+    },
+    //删除用户
+    deleteUser(e) {
+      this.$confirm("此操作将永久删除该文件, 是否继续?", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning",
+      })
+        .then(() => {
+          console.log(e);
+          deleteIDUsers(e).then((res) => {
+            console.log(res);
+            if (res.meta.status !== 200) {
+              this.$message.error(res.meta.msg);
+            }
+            this.$message.success(res.meta.msg);
+            this.deleteUserDialog = false;
+            this.init();
+          });
+        })
+        .catch(() => {
+          this.$message({
+            type: "info",
+            message: "已取消删除",
+          });
+        });
     },
   },
 

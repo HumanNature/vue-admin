@@ -22,3 +22,22 @@ export function putSwitch(uid, type) {
         url: "api/private/v1/users/" + uid + "/state/" + type
     })
 }
+export function getIDUsers(id) {
+    return Request({
+        method: 'get',
+        url: 'api/private/v1/users/' + id,
+    })
+}
+export function putIDUsers(id, data) {
+    return Request({
+        method: 'put',
+        url: 'api/private/v1/users/' + id,
+        data: data
+    })
+}
+export function deleteIDUsers(id) {
+    return Request({
+        method: 'delete',
+        url: 'api/private/v1/users/' + id,
+    })
+}
