@@ -10,6 +10,7 @@
       </div>
       <div class="header_quit">
         <el-button type="info" @click="quit">退出</el-button>
+        <el-button type="info" @click="quit">退出</el-button>
       </div>
     </el-header>
     <!-- 主体区域 -->
