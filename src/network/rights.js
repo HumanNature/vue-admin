@@ -42,15 +42,18 @@ export function deleteIDRoles(id) {
         url: 'api/private/v1/roles/' + id,
     })
 }
-export function postRolesID(roleId) {
+export function postRolesID(roleId, rids) {
     return Request({
         method: 'post',
-        url: 'api/private/v1/roles/:' + roleId + '/rights',
+        url: 'api/private/v1/roles/' + roleId + '/rights',
+        data: {
+            rids: rids
+        },
     })
 }
 export function deleteRolesID(roleId, rightId) {
     return Request({
         method: 'delete',
-        url: 'api/private/v1/roles/:' + roleId + '/rights' + rightId,
+        url: 'api/private/v1/roles/' + roleId + '/rights/' + rightId,
     })
 }
