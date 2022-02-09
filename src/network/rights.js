@@ -29,13 +29,7 @@ export function getIDRoles(id) {
         url: 'api/private/v1/roles/' + id,
     })
 }
-export function putIDRoles(id, data) {
-    return Request({
-        method: 'put',
-        url: 'api/private/v1/roles/' + id,
-        data: data
-    })
-}
+//删除角色
 export function deleteIDRoles(id) {
     return Request({
         method: 'delete',

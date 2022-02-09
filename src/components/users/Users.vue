@@ -128,6 +128,7 @@
                 size="mini"
                 icon="el-icon-setting"
                 type="warning"
+                @click="setRole(scope.row)"
               ></el-button>
             </el-tooltip>
             <!-- 修改用户的对话框 -->
@@ -160,7 +161,39 @@
 
               <span slot="footer" class="dialog-footer">
                 <el-button @click="alterUserdialog = false">取 消</el-button>
-                <el-button type="primary" @click="alterUserForm()"
+                <el-button type="primary" @click="alterUserForm(scope.row)"
+                  >确 定</el-button
+                >
+              </span>
+            </el-dialog>
+            <!-- 分配角色的对话框 -->
+            <el-dialog
+              title="分配角色"
+              :visible.sync="setRoleDialogVisible"
+              width="30%"
+              @close="serRoleDialogClose()"
+            >
+              <span>这是一段信息</span>
+              <p>当前的用户：{{ userInfo.username }}</p>
+              <p>当前的角色：{{ userInfo.role_name }}</p>
+              <!-- <pre>{{rolesList}}</pre> -->
+              <p>
+                分配新角色:
+                <el-select v-model="selectedRoleId" placeholder="请选择">
+                  <el-option
+                    v-for="item in rolesList"
+                    :key="item.id"
+                    :label="item.roleName"
+                    :value="item.id"
+                  >
+                  </el-option>
+                </el-select>
+              </p>
+              <span slot="footer" class="dialog-footer">
+                <el-button @click="setRoleDialogVisible = false"
+                  >取 消</el-button
+                >
+                <el-button type="primary" @click="setRoleInfo()"
                   >确 定</el-button
                 >
               </span>
@@ -191,7 +224,9 @@ import {
   getIDUsers,
   putIDUsers,
   deleteIDUsers,
+  putIDRoles,
 } from "../../network/users";
+import { getRoles } from "../../network/rights";
 export default {
   props: {},
   data() {
@@ -269,6 +304,10 @@ export default {
           { required: true, message: "请输入电话", trigger: "blur" },
         ],
       },
+      setRoleDialogVisible: false, //分配角色对话框的开关
+      userInfo: {}, //分配角色的用户信息
+      rolesList: [], //所有角色数据列表
+      selectedRoleId: "", //已选择的id值
     };
   },
 
@@ -408,6 +447,41 @@ export default {
             message: "已取消删除",
           });
         });
+    },
+    //展开分配角色对话框
+    setRole(e) {
+      this.userInfo = e;
+      //在展示对话框之前，获取所有角色的列表
+      getRoles("roles").then((res) => {
+        if (res.meta.status !== 200) {
+          this.$message.error(res.meta.msg);
+        }
+        this.rolesList = res.data;
+        this.$message.success(res.meta.msg);
+      });
+      this.setRoleDialogVisible = true;
+    },
+    //确定分配角色
+    setRoleInfo() {
+      if (!this.selectedRoleId) {
+        return this.$message.error("请选择分配的角色！");
+      }
+
+      console.log(this.userInfo.id, this.selectedRoleId);
+      putIDRoles(this.userInfo.id, this.selectedRoleId).then((res) => {
+        // console.log(res);
+        if (res.meta.status !== 200) {
+          this.$message.error(res.meta.msg);
+        }
+        this.init(); //刷新列表
+        this.$message.success(res.meta.msg);
+        this.setRoleDialogVisible = false;
+      });
+    },
+    //监听分配角色对话框关闭事件
+    serRoleDialogClose() {
+      this.selectedRoleId = "";
+      this.userInfo = {};
     },
   },
 

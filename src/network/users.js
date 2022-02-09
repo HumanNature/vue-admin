@@ -41,3 +41,13 @@ export function deleteIDUsers(id) {
         url: 'api/private/v1/users/' + id,
     })
 }
+//分配角色
+export function putIDRoles(id, e) {
+    return Request({
+        method: 'put',
+        url: 'api/private/v1/users/'+ id+'/role',
+        data: {
+            rid: e
+        }
+    })
+}
