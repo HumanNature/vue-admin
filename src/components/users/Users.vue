@@ -225,8 +225,8 @@ import {
   putIDUsers,
   deleteIDUsers,
   putIDRoles,
-} from "../../network/users";
-import { getRoles } from "../../network/rights";
+} from "../../network/users/users";
+import { getRoles } from "../../network/roles/rights";
 export default {
   props: {},
   data() {

@@ -1,6 +1,6 @@
 import {
     Request,
-} from './request';
+} from '../request';
 //所有权限列表
 export function getRightstype(data) {
     return Request({

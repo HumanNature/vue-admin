@@ -197,7 +197,7 @@ import {
   getRightstype,
   postRolesID,
   deleteRolesID,
-} from "../../network/rights";
+} from "../../network/roles/rights";
 export default {
   props: {},
   data() {

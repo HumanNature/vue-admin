@@ -19,6 +19,10 @@ axios.interceptors.request.use(config => {
   return config
 })
 Vue.prototype.$http = axios
+//引入vue-table
+import ZkTable from 'vue-table-with-tree-grid'
+Vue.use(ZkTable)
+
 Vue.config.productionTip = false
 
 new Vue({

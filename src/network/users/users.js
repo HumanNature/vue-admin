@@ -1,6 +1,6 @@
 import {
     Request,
-} from './request';
+} from '../request';
 export function getUsers(data) {
     return Request({
         method: 'get',

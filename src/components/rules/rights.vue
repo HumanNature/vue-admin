@@ -31,7 +31,7 @@
 </template>
 
 <script>
-import { getRightstype } from "../../network/rights";
+import { getRightstype } from "../../network/roles/rights";
 export default {
   props: {},
   data() {
