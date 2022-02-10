@@ -10,15 +10,11 @@ export function getCategories(data) {
     })
 }
 //添加分类
-export function postCategories(pid, cname, level) {
+export function postCategories(data) {
     return Request({
         method: 'post',
         url: 'api/private/v1/categories/',
-        data: {
-            cat_pid: pid,
-            cat_name: cname,
-            cat_level: level
-        }
+        data: data
     })
 }
 //id查询分类
