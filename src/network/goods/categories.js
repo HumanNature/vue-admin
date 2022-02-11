@@ -47,46 +47,39 @@ export function getCategoriesList(roleId, sel) {
     return Request({
         method: 'get',
         url: 'api/private/v1/categories/' + roleId + '/attributes',
-        data: {
+        params: {
             sel: sel
         },
     })
 }
 //添加动态参数或者静态属性
-export function addAttributes(id, cname, sel, vals) {
+export function addAttributes(id, data) {
     return Request({
         method: 'post',
         url: 'api/private/v1/categories/' + id + '/attributes',
-        data: {
-            attr_name: cname,
-            attr_sel: sel,
-            attr_vals: vals
-        },
+        data
     })
 }
 //删除参数
 export function deleteParam(id, attrid) {
     return Request({
         method: 'delete',
-        url: 'api/private/v1/categories/' + id + '/attributes' + attrid,
+        url: 'api/private/v1/categories/' + id + '/attributes/' + attrid,
     })
 }
 //根据id查询参数
-export function getIDParam(id, attrId) {
+export function getIDParam(id, attrId, data) {
     return Request({
         method: 'get',
-        url: 'api/private/v1/categories/' + id + '/attributes' + attrId,
+        url: 'api/private/v1/categories/' + id + '/attributes/' + attrId,
+        params:data
     })
 }
 //编辑提交参数
-export function putIDParam(id, attrId, cname, sel, vals) {
+export function putIDParam(id, attrId, data) {
     return Request({
         method: 'put',
-        url: 'api/private/v1/categories/' + id + '/attributes' + attrId,
-        data: {
-            attr_name: cname,
-            attr_sel: sel,
-            attr_vals: vals,
-        }
+        url: 'api/private/v1/categories/' + id + '/attributes/' + attrId,
+        data
     })
 }
