@@ -122,7 +122,36 @@
             </el-col>
           </el-row>
           <el-table :data="onlyTableData" border stripe>
-            <el-table-column type="expand"> </el-table-column>
+            <el-table-column type="expand">
+              <template v-slot="scope">
+                <el-tag
+                  v-for="(item1, index) in scope.row.attr_vals"
+                  :key="index"
+                  closable
+                  @close="TagClose(scope.row, index)"
+                  >{{ item1 }}</el-tag
+                >
+                <!-- 动态添加tag -->
+                <el-input
+                  class="input-new-tag"
+                  v-if="scope.row.inputVisible"
+                  v-model="scope.row.inputValue"
+                  ref="saveTagInput"
+                  size="small"
+                  @keyup.enter.native="handleInputConfirm(scope.row)"
+                  @blur="handleInputConfirm(scope.row)"
+                >
+                </el-input>
+                <el-button
+                  v-else
+                  class="button-new-tag"
+                  size="small"
+                  @click="showInput(scope.row)"
+                  >+ New Tag</el-button
+                >
+                <!-- <pre> {{ scope.row }}</pre> -->
+              </template>
+            </el-table-column>
             <el-table-column type="index" label="#"> </el-table-column>
 
             <el-table-column prop="attr_name" label="参数名称">
@@ -314,6 +343,8 @@ export default {
       //判断选中是哪一级分类
       if (this.selectedCateKeys.length != 3) {
         this.selectedCateKeys = [];
+        this.manyTableData = [];
+        this.onlyTableData = [];
         return;
       } else {
         console.log(1);
