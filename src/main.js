@@ -23,6 +23,18 @@ Vue.prototype.$http = axios
 import ZkTable from 'vue-table-with-tree-grid'
 Vue.use(ZkTable)
 
+//时间戳转换挂载在mian上
+Vue.filter('dateFormat', function (val) {
+  const dt = new Date(val)
+  const Y = dt.getFullYear()
+  const M = (dt.getMonth() + 1 < 10 ? '0' + (dt.getMonth() + 1) : dt.getMonth() + 1).padStart(2,'0')
+  const D = (dt.getDate()+'').padStart(2,'0')
+  const hh = (dt.getHours()+'').padStart(2,'0')
+  const mm = (dt.getMinutes()+'').padStart(2,'0')
+  const ss = (dt.getSeconds()+'').padStart(2,'0')
+  return `${Y}-${M}-${D} ${hh}:${mm}:${ss}`
+})
+
 Vue.config.productionTip = false
 
 new Vue({

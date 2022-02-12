@@ -2,15 +2,11 @@ import {
     Request,
 } from '../request';
 //商品列表数据
-export function getGoods(pagenum, pagesize, query) {
+export function getGoods(data) {
     return Request({
         method: 'get',
         url: 'api/private/v1/goods',
-        params: {
-            pagenum,
-            pagesize,
-            query,
-        }
+        params: data
     })
 }
 //添加商品

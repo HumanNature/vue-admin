@@ -7,6 +7,7 @@ import Users from '../components/users/Users.vue';
 import roles from '../components/rules/roles.vue';
 import rights from '../components/rules/rights.vue';
 import goods from '../components/goods/goods.vue';
+import add from '../components/goods/add.vue';
 import params from '../components/goods/params.vue';
 import orders from '../components/orders/orders.vue';
 import reports from '../components/data/reports.vue';
@@ -56,6 +57,10 @@ const routes = [{
       path: '/goods',
       name: 'goods',
       component: goods 
+    },{
+      path: '/goods/add',
+      name: 'add',
+      component: add 
     },{
       path: '/params',
       name: 'params',
