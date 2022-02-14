@@ -43,12 +43,12 @@ export function deleteIDCategories(id) {
 }
 //分类参数
 //参数列表
-export function getCategoriesList(roleId, sel) {
+export function getCategoriesList(roleId, a) {
     return Request({
         method: 'get',
         url: 'api/private/v1/categories/' + roleId + '/attributes',
         params: {
-            sel: sel
+            sel: a
         },
     })
 }
