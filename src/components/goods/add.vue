@@ -103,18 +103,33 @@
           <el-tab-pane label="商品图片" name="3">
             <el-upload
               :action="uploadurl"
+              :headers="headerobj"
               :on-preview="handlePreview"
               :on-remove="handleRemove"
+              :on-success="handleSuccess"
               list-type="picture"
-              :before-remove="beforeRemove"
-              multiple
-              :limit="3"
-              :on-exceed="handleExceed"
             >
               <el-button size="small" type="primary">点击上传</el-button>
             </el-upload>
+            <el-dialog
+              title="图片预览"
+              :visible.sync="previewDialogVisible"
+              width="50%"
+            >
+              <!-- <el-image :src="previewPath" fit="fill" :lazy="true"></el-image> -->
+              <img class="previewImg" :src="previewPath" alt="" />
+            </el-dialog>
           </el-tab-pane>
-          <el-tab-pane label="商品内容" name="4">商品内容</el-tab-pane>
+          <el-tab-pane label="商品内容" name="4">
+            <!-- 富文本编辑器 -->
+            <quill-editor
+              ref="myQuillEditor"
+              v-model="addForm.goods_introduce"
+            />
+            <el-button type="primary" class="addBtn" @click="addGuill"
+              >添加商品</el-button
+            >
+          </el-tab-pane>
         </el-tabs>
       </el-form>
     </el-card>
@@ -122,13 +137,12 @@
 </template>
 
 <script>
-import // getGoods,
-// postGoods
-"../../network/goods/goods";
+import { postGoods } from "../../network/goods/goods";
 import {
   getCategories,
   getCategoriesList,
 } from "../../network/goods/categories";
+import _ from "lodash";
 export default {
   props: {},
   data() {
@@ -140,27 +154,29 @@ export default {
         goods_weight: 0,
         goods_number: 0,
         goods_cat: [],
+        pics: [],
+        goods_introduce: "", //商品介绍
+        attrs: [],
       },
       addRules: {
         goods_name: [
           { required: true, message: "请输入商品名称", trigger: "blur" },
-          { min: 3, max: 5, message: "长度在 3 到 5 个字符", trigger: "blur" },
+          { max: 50, message: "请输入50个字符以下的商品名称", trigger: "blur" },
         ],
         goods_price: [
           { required: true, message: "请输入商品价格", trigger: "blur" },
-          { min: 3, max: 5, message: "长度在 3 到 5 个字符", trigger: "blur" },
+          { max: 20, message: "请输入20个字符以下的商品价格", trigger: "blur" },
         ],
         goods_weight: [
           { required: true, message: "请输入商品重量", trigger: "blur" },
-          { min: 3, max: 5, message: "长度在 3 到 5 个字符", trigger: "blur" },
+          { max: 20, message: "请输入20个字符以下的商品重量", trigger: "blur" },
         ],
         goods_number: [
           { required: true, message: "请输入商品数量", trigger: "blur" },
-          { min: 3, max: 5, message: "长度在 3 到 5 个字符", trigger: "blur" },
+          { max: 20, message: "请输入20个字符以下的商品数量", trigger: "blur" },
         ],
         goods_cat: [
           { required: true, message: "请输入商品数量", trigger: "blur" },
-          { min: 3, max: 5, message: "长度在 3 到 5 个字符", trigger: "blur" },
         ],
         // fileList: [
         //   {
@@ -182,6 +198,11 @@ export default {
       manyTableData: [], //动态参数列表
       onlyTableData: [], //静态属性列表
       uploadurl: "http://127.0.0.1:8888/api/private/v1/upload", // 上传地址
+      headerobj: {
+        Authorization: window.localStorage.getItem("token"),
+      }, //图片上传请求头
+      previewPath: "", //点击图片的路径
+      previewDialogVisible: false, //点击图片弹出的对话框
     };
   },
 
@@ -285,13 +306,34 @@ export default {
         return false;
       }
     },
-    //上传图片的事件
+    //点击图片的事件
     handlePreview(file) {
+      this.previewPath = file.response.data.url;
+      this.previewDialogVisible = true;
       console.log(file);
     },
     //关闭图片事件
     handleRemove(file, fileList) {
       console.log(file, fileList);
+      console.log(this.addForm);
+      const filePath = file.response.data.tmp_path;
+      const i = this.addForm.pics.findIndex((x) => {
+        x.pic = filePath;
+      });
+      this.addForm.pics.splice(i, 1);
+      console.log(this.addForm);
+    },
+    handleSuccess(e) {
+      console.log(e);
+      if (e.meta.status !== 200) {
+        this.$message.error(e.meta.msg);
+      }
+      const picInfo = {
+        pic: e.data.tmp_path,
+      };
+      this.addForm.pics.push(picInfo);
+      console.log(this.addForm);
+      this.$message.success(e.meta.msg);
     },
     handleExceed(files, fileList) {
       this.$message.warning(
@@ -302,6 +344,43 @@ export default {
     },
     beforeRemove(file) {
       return this.$confirm(`确定移除 ${file.name}？`);
+    },
+    addGuill() {
+      this.$refs.addFormRef.validate((val) => {
+        if (!val) {
+          return this.$message.error("请填写必要的表单项");
+        }
+
+        const form = _.cloneDeep(this.addForm);
+        form.goods_cat = this.addForm.goods_cat.join(",");
+        //处理动态参数
+        this.manyTableData.forEach((item) => {
+          const newInfo = {
+            attr_id: item.attr_id,
+            attr_value: item.attr_vals.join(" "),
+          };
+          this.addForm.attrs.push(newInfo);
+        });
+        //处理静态属性
+        this.onlyTableData.forEach((item) => {
+          const newInfo = {
+            attr_id: item.attr_id,
+            attr_value: item.attr_vals,
+          };
+          this.addForm.attrs.push(newInfo);
+        });
+        form.attrs = this.addForm.attrs;
+        console.log(form);
+        //发起添加商品请求
+        postGoods(form).then(res=>{
+           if (res.meta.status !== 200) {
+            this.$message.error(res.meta.msg);
+          }
+          console.log(res);
+          this.$message.success(res.meta.msg);
+          this.$router.push('/goods')
+        })
+      });
     },
   },
 
@@ -320,5 +399,11 @@ export default {
 }
 .el-checkbox {
   margin: 0 5px 0 0 !important;
+}
+.previewImg {
+  width: 100%;
+}
+.addBtn {
+  margin-top: 15px;
 }
 </style>

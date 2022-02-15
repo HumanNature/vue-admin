@@ -22,7 +22,14 @@ Vue.prototype.$http = axios
 //引入vue-table
 import ZkTable from 'vue-table-with-tree-grid'
 Vue.use(ZkTable)
+//引入VueQuillEditor
+import VueQuillEditor from 'vue-quill-editor'
 
+import 'quill/dist/quill.core.css' // import styles
+import 'quill/dist/quill.snow.css' // for snow theme
+import 'quill/dist/quill.bubble.css' // for bubble theme
+
+Vue.use(VueQuillEditor, /* { default global options } */)
 //时间戳转换挂载在mian上
 Vue.filter('dateFormat', function (val) {
   const dt = new Date(val)

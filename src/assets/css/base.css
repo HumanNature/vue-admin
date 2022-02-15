@@ -94,3 +94,7 @@ textarea {
     resize: none;
     overflow: auto;
 }
+/* 富文本编辑器框的高度 */
+.ql-editor {
+    min-height: 300px;
+}
