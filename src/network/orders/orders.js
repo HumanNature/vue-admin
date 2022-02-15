@@ -2,15 +2,11 @@ import {
     Request,
 } from '../request';
 //订单列表数据
-export function getOrders(pagenum, pagesize, query) {
+export function getOrders(data) {
     return Request({
         method: 'get',
         url: 'api/private/v1/orders',
-        params: {
-            pagenum,
-            pagesize,
-            query,
-        }
+        params: data
     })
 }
 //修改订单状态
